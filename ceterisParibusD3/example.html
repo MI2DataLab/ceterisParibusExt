@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+<meta charset="utf-8">
+
+	<title>ceterisParibusD3 example
+	</title>
+
+		<!-- loading D3 library, internet connection needed -->
+        <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+		
+		<!-- loading external files -->
+        <!-- datasets -->		
+        <script src="./exemplaryData.js" charset="utf-8" lang="js"></script>
+        <script src="./exemplaryData_obs.js" charset="utf-8" lang="js"></script> 
+        
+        <!-- functions -->
+
+        <script src="./ceterisParibusD3.js" charset="utf-8" lang="js"></script>
+  
+</head>
+<body>
+
+<script type="text/javascript">
+
+var data = exemplaryData,
+    dataObs = exemplaryData_obs,
+    vars = ["surface",  "construction.year", 'no.rooms', 'floor'],
+    color = '_ids_',
+    height = 400,
+    width =  600;
+
+ceterisParibusD3.renderPlot(data = data, dataObs = dataObs, variables = vars, color = color, height = height, width = width);
+
+</script>
+</body>
+</html>
