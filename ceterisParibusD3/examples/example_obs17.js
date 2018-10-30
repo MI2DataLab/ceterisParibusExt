@@ -1,0 +1,122 @@
+example_obs17 = [
+  {
+    "m2.price": 5875,
+    "construction.year": 1970,
+    "surface": 27,
+    "floor": 3,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5334.8594,
+    "_y_": 5875,
+    "_label_": "randomForest",
+    "_ids_": "2285"
+  },
+  {
+    "m2.price": 5886,
+    "construction.year": 1960,
+    "surface": 36,
+    "floor": 2,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5417.3829,
+    "_y_": 5886,
+    "_label_": "randomForest",
+    "_ids_": "1073"
+  },
+  {
+    "m2.price": 5859,
+    "construction.year": 1945,
+    "surface": 39,
+    "floor": 2,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5405.2698,
+    "_y_": 5859,
+    "_label_": "randomForest",
+    "_ids_": "3261"
+  },
+  {
+    "m2.price": 5952,
+    "construction.year": 1938,
+    "surface": 30,
+    "floor": 2,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5414.4758,
+    "_y_": 5952,
+    "_label_": "randomForest",
+    "_ids_": "6647"
+  },
+  {
+    "m2.price": 5821,
+    "construction.year": 1947,
+    "surface": 43,
+    "floor": 2,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5267.8412,
+    "_y_": 5821,
+    "_label_": "randomForest",
+    "_ids_": "1198"
+  },
+  {
+    "m2.price": 5794,
+    "construction.year": 1947,
+    "surface": 31,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Srodmiescie",
+    "_yhat_": 5292.2152,
+    "_y_": 5794,
+    "_label_": "randomForest",
+    "_ids_": "4309"
+  },
+  {
+    "m2.price": 6080,
+    "construction.year": 1947,
+    "surface": 27,
+    "floor": 1,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5493.6623,
+    "_y_": 6080,
+    "_label_": "randomForest",
+    "_ids_": "9527"
+  },
+  {
+    "m2.price": 5614,
+    "construction.year": 1957,
+    "surface": 44,
+    "floor": 4,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5164.4107,
+    "_y_": 5614,
+    "_label_": "randomForest",
+    "_ids_": "8110"
+  },
+  {
+    "m2.price": 5860,
+    "construction.year": 1937,
+    "surface": 39,
+    "floor": 2,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5443.5056,
+    "_y_": 5860,
+    "_label_": "randomForest",
+    "_ids_": "9510"
+  },
+  {
+    "m2.price": 5912,
+    "construction.year": 1989,
+    "surface": 24,
+    "floor": 3,
+    "no.rooms": 1,
+    "district": "Srodmiescie",
+    "_yhat_": 5331.5924,
+    "_y_": 5912,
+    "_label_": "randomForest",
+    "_ids_": "2408"
+  }
+]
