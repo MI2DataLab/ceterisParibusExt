@@ -13,8 +13,6 @@
 		<!-- loading external files -->
 
         <!-- datasets -->		
-        <script src="./exemplaryData.js" charset="utf-8" lang="js"></script>
-        <script src="./exemplaryData_obs.js" charset="utf-8" lang="js"></script> 
         <script src="./examples/example1.js" charset="utf-8" lang="js"></script>
         <script src="./examples/example_obs1.js" charset="utf-8" lang="js"></script> 
         <script src="./examples/example2.js" charset="utf-8" lang="js"></script>
@@ -89,19 +87,22 @@
 
 // example 1
 
-new ceterisParibusD3.createPlot(div = "chartDiv", // container id (string) or selection of container (e.g. document.getElementById("chartDiv"))
-                       data = example1, // data (data calculated by ceterisparibus)
-                       dataObs = example_obs1, // data (data observations)
+var plot = new ceterisParibusD3.createPlot(div = "chartDiv", // container id (string) or selection of container (e.g. document.getElementById("chartDiv"))
+                       data = example5, // data (data calculated by ceterisparibus)
+                       dataObs = example_obs5, // data (data observations)
                        options = { // options
                                    variables: ["surface",  "construction.year"],
-                                   color: null,
+                                   color: 'district',
                                    show_profiles: true, 
                                    show_observations: true, 
-                                   show_rugs: false, 
-                                   show_residuals: false, 
-                                   aggregate_profiles: null
+                                   show_rugs: true, 
+                                   show_residuals: true, 
+                                   aggregate_profiles: 'mean'
                                 }
-                       ); 
+                       );
+
+//plot.resizePlot_(600, 400);
+
 
 
 // example 2
