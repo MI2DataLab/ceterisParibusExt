@@ -9,7 +9,14 @@
 
 		<!-- loading D3 library, internet connection needed -->
         <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                crossorigin="anonymous"></script>
 		
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+  
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+
 		<!-- loading external files -->
 
         <!-- datasets -->		
@@ -88,16 +95,17 @@
 // example 1
 
 var plot = new ceterisParibusD3.createPlot(div = "chartDiv", // container id (string) or selection of container (e.g. document.getElementById("chartDiv"))
-                       data = example5, // data (data calculated by ceterisparibus)
-                       dataObs = example_obs5, // data (data observations)
+                       data = example1, // data (data calculated by ceterisparibus)
+                       dataObs = example_obs1, // data (data observations)
                        options = { // options
-                                   variables: ["surface",  "construction.year"],
-                                   color: 'district',
+                                   variables: ["surface",  "construction.year", "floor"],
+                                   color:  null,
                                    show_profiles: true, 
                                    show_observations: true, 
                                    show_rugs: true, 
                                    show_residuals: true, 
-                                   aggregate_profiles: 'mean'
+                                   aggregate_profiles: 'mean',
+                                   no_colors: 3
                                 }
                        );
 
