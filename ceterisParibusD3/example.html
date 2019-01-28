@@ -15,6 +15,9 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
   
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/plug-ins/1.10.19/features/scrollResize/dataTables.scrollResize.min.js"></script>
+
+
 
 
 		<!-- loading external files -->
@@ -81,33 +84,58 @@
         <script src="./examples/example22.js" charset="utf-8" lang="js"></script>
         <script src="./examples/example_obs22.js" charset="utf-8" lang="js"></script>
 
+
         <!-- functions -->
         <script src="./ceterisParibusD3.js" charset="utf-8" lang="js"></script>
   
 </head>
 <body>
 
-<div id='chartDiv'> </div>
-
+<div id='chartDiv'> </div> <!-- style = "width: 100vh; height: 100vh;" -->
 
 <script type="text/javascript">
 
 // example 1
 
 var plot = new ceterisParibusD3.createPlot(div = "chartDiv", // container id (string) or selection of container (e.g. document.getElementById("chartDiv"))
-                       data = example1, // data (data calculated by ceterisparibus)
-                       dataObs = example_obs1, // data (data observations)
+                       data = example12, // data (data calculated by ceterisparibus)
+                       dataObs = example_obs12, // data (data observations)
                        options = { // options
-                                   variables: ["surface",  "construction.year", "floor"],
-                                   color:  null,
+                                   variables: ["district",  "floor", 'no.rooms'],
+                                   color: 'district',
                                    show_profiles: true, 
                                    show_observations: true, 
                                    show_rugs: true, 
                                    show_residuals: true, 
                                    aggregate_profiles: 'mean',
-                                   no_colors: 3
+                                   add_table: true,
+                                   no_colors: 3,
+                                   height: 400,
+                                   width: 800,
+                                   size_rugs: 0.5,
+                                   yaxis_title: '',
+                                   color_rugs: 'grey',
+                                   //auto_resize: true,
+                                   //font_size_axes:8,
+                                   categorical_order: [
+                                   { 'variable': 'district', 
+                                     'rank1': "Bielany", 
+                                     'rank2': "Bemowo", 
+                                     'rank3': "Mokotow", 
+                                     'rank4': "Ochota", 
+                                     'rank5': "Praga", 
+                                     'rank6': "Srodmiescie", 
+                                     'rank7': "Ursus", 
+                                     'rank8': "Ursynow", 
+                                     'rank9': "Wola", 
+                                     'rank10': "Zoliborz"
+                                  }
+                                  ]  
+
                                 }
                        );
+
+
 
 //plot.resizePlot_(600, 400);
 
