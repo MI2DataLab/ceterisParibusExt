@@ -1222,15 +1222,19 @@
                defaultPaletteNum = d3.schemeOrRd,
                color = this.color_,
                dataObs = this.dataObs_;
+
+
+
           
             this.scaleColor_ = {};
 
             if (typeof dataObs.map(function (x) { return x[color];  })[0] == 'string'){
 
+
                 var domainCat = d3.nest().key(function(d){return d[color]}).entries(dataObs).map(function(x) {return x.key});
 
                 if(defaultPaletteCat.length < domainCat.length){
-                    throw new Error('Color variable has too many categories. Available: ' + defaultPaletteCat.length + ', given: ' + domainCat.length +'. Reduce no of categories.');
+                    throw new Error('Color variable has too many categories. Currently available: ' + defaultPaletteCat.length + ', given: ' + domainCat.length +'. Reduce no of categories.');
                 } else{
                     this.scaleColor_ = d3.scaleOrdinal(defaultPaletteCat);
                     this.scaleColor_.domain(domainCat);
@@ -1238,98 +1242,124 @@
 
             }
             else if (typeof dataObs.map(function (x) { return x[color];  })[0]== 'number') {
-                var scale = d3.scaleOrdinal(defaultPaletteNum[no_colors]),
-                scaleMin = d3.min(dataObs.map(function(x) {return x[color]})), 
-                scaleMax = d3.max(dataObs.map(function(x) {return x[color]})),
-                scaleDivisions,
-                format,
-                scaleDomain = [];
 
-                // nice() from d3 is making floor and ceil of domain start/end in smart way (attention it matters what we give as a second argument
-                // so if we want floor of scaleMin we give it as a first argument, and as a second we can't put anything bigger, cause it changes scaling)
-                scaleMin = d3.scaleLinear().domain([scaleMin, scaleMax]).nice().domain()[0]
-                scaleMax = d3.scaleLinear().domain([scaleMin, scaleMax]).nice().domain()[1]
+                var nocolorsAvailable = d3.extent(defaultPaletteNum.map(function(x){ return x.length; }));
+                
+                if(no_colors > nocolorsAvailable[1] ||  no_colors < nocolorsAvailable[0]){
+                    throw new Error('Argument no_colors has an inproper value. Currently available: between ' + nocolorsAvailable[0] +  ' and ' + nocolorsAvailable[1]  +', given: ' + no_colors +'. Change no of colors.');
+                } else{
 
-                // to have also nice rounded difference we use nice also here
-                var diff = d3.scaleLinear().domain([0, (scaleMax - scaleMin)/no_colors]).nice().domain()[1]
+                        var scale = d3.scaleOrdinal(defaultPaletteNum[no_colors]),
+                        scaleMin = d3.min(dataObs.map(function(x) {return x[color]})), 
+                        scaleMax = d3.max(dataObs.map(function(x) {return x[color]})),
 
-                // we create proper divisions
-                scaleDivisions = d3.range(scaleMin, scaleMax, diff);
-                scaleDivisions.push(scaleMax);
-                // making sure scaleMax is not duplicated
-                scaleDivisions = scaleDivisions.filter(function(item, pos) {return scaleDivisions.indexOf(item) == pos;})
+                        scaleDivisions,
+                        format,
+                        scaleDomain = [];
 
-                // changing format to be sure that we have 0.7 when we add 0.3 + 0.4 not 0.699999999999
 
-                if( isFinite(((diff+'').split('.')[1])) ){
-                    format = '.'+ ((diff+'').split('.')[1]).length+'f';
-                } else {format = '.0f'};
 
-                scaleDivisions = scaleDivisions.map(function(x) {return +d3.format(format)(x)});
+                        // nice() from d3 is making floor and ceil of domain start/end in smart way (attention it matters what we give as a second argument
+                        // so if we want floor of scaleMin we give it as a first argument, and as a second we can't put anything bigger, cause it changes scaling)
+                        scaleMin = d3.scaleLinear().domain([scaleMin, scaleMax]).nice().domain()[0]
+                        scaleMax = d3.scaleLinear().domain([scaleMin, scaleMax]).nice().domain()[1]
+
+
+              
+
+                        // to have also nice rounded difference we use nice also here
+                        var diff = d3.scaleLinear().domain([0, (scaleMax - scaleMin)/no_colors]).nice().domain()[1]
+
+                        // we create proper divisions
+                        scaleDivisions = d3.range(scaleMin, scaleMax, diff);
+                        scaleDivisions.push(scaleMax);
+                        // making sure scaleMax is not duplicated
+                        scaleDivisions = scaleDivisions.filter(function(item, pos) {return scaleDivisions.indexOf(item) == pos;})
+
+
+
+
+                        // changing format to be sure that we have 0.7 when we add 0.3 + 0.4 not 0.699999999999
+
+                        if( isFinite(((diff+'').split('.')[1])) ){
+                            format = '.'+ ((diff+'').split('.')[1]).length+'f';
+                        } else {format = '.0f'};
+
+                        scaleDivisions = scaleDivisions.map(function(x) {return +d3.format(format)(x)});
+                
             
-
-            if(scaleDivisions.lenght > 1){
-
-                // creating labels for legend keys
-                scaleDivisions.forEach(function(d,i) {if(i < scaleDivisions.length - 1){scaleDomain.push('['+ d +';')}}); //d3.format("~s")(d)
-                scaleDivisions.forEach(function(d,i) {
-                if(i > 0){ 
-                    if(i == scaleDivisions.length - 1) { 
-                        scaleDomain[i-1] = scaleDomain[i-1] + d + ']';
-                    } else { 
-                        scaleDomain[i-1] = scaleDomain[i-1] + d + ')';
-                    }}});
+                       
 
 
-            } else {
-                scaleDomain = scaleDivisions[0].toString()
-            }
-
-        
-                scale.domain(scaleDomain);
+                        if(scaleDivisions.length > 1){
 
 
-                // IE 9 > not supporting .indexOf, needed below 
-                var getPosition = function (elementToFind, arrayElements) {
-                                        var i;
-                                        for (i = 0; i < arrayElements.length; i += 1) {
-                                            if (arrayElements[i] === elementToFind) {
-                                                return i;
-                                            }
-                                        }
-                                        return null; //not found
-                                    };
 
-                var scaleNew = function(x) { 
-                    // if we give scale argument from its domain it also should work"
-                    if (getPosition(x, scale.domain())) {
-                        var position = getPosition(x, scale.domain());
-                        return scale.range()[position]
-                    } else {
-                        var whichRange = [];
-                        scaleDivisions.forEach(function(d,i){
-            
-                            if(i > 0){
-                                if(i < scaleDivisions.length - 1){
-                                    if(x < d ){ whichRange.push(i)}
-                                } else {
-                                    if(x <= d ){whichRange.push(i)}
-                                }
-                            }
-                         });
+                            // creating labels for legend keys
+                            scaleDivisions.forEach(function(d,i) {if(i < scaleDivisions.length - 1){scaleDomain.push('['+ d +';')}}); //d3.format("~s")(d)
+                            scaleDivisions.forEach(function(d,i) {
+                            if(i > 0){ 
+                                if(i == scaleDivisions.length - 1) { 
+                                    scaleDomain[i-1] = scaleDomain[i-1] + d + ']';
+                                } else { 
+                                    scaleDomain[i-1] = scaleDomain[i-1] + d + ')';
+                                }}});
+
+
+                        } else {
+                            scaleDomain = scaleDivisions[0].toString()
+                        }
+
+                
+                        scale.domain(scaleDomain);
+
+
+                        // IE 9 > not supporting .indexOf, needed below 
+                        var getPosition = function (elementToFind, arrayElements) {
+                                                var i;
+                                                for (i = 0; i < arrayElements.length; i += 1) {
+                                                    if (arrayElements[i] === elementToFind) {
+                                                        return i;
+                                                    }
+                                                }
+                                                return null; //not found
+                                            };
+
+                        var scaleNew = function(x) { 
+                            // if we give scale argument from its domain it also should work"
+                            if (getPosition(x, scale.domain())) {
+                                var position = getPosition(x, scale.domain());
+                                return scale.range()[position]
+                            } else {
+                                var whichRange = [];
+                                scaleDivisions.forEach(function(d,i){
                     
-                        return scale(scaleDomain[d3.min(whichRange)-1]);
-                      }   
-        
-                 };
+                                    if(i > 0){
+                                        if(i < scaleDivisions.length - 1){
+                                            if(x < d ){ whichRange.push(i)}
+                                        } else {
+                                            if(x <= d ){whichRange.push(i)}
+                                        }
+                                    }
+                                 });
+                            
+                                return scale(scaleDomain[d3.min(whichRange)-1]);
+                              }   
+                
+                         };
 
-                scaleNew.domain = scale.domain;
-                scaleNew.range = scale.range;
-                scaleNew.unknown = scale.unknown;
-                scaleNew.copy = scale.copy;
+                        scaleNew.domain = scale.domain;
+                        scaleNew.range = scale.range;
+                        scaleNew.unknown = scale.unknown;
+                        scaleNew.copy = scale.copy;
 
-                this.scaleColor_ = scaleNew;
+                        this.scaleColor_ = scaleNew;
+
+                }
+
             }
+
+
             else {
                 this.scaleColor_ = d3.scaleOrdinal();
                 this.scaleColor_.range([default_color]);
