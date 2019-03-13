@@ -90,12 +90,93 @@
             this.userDiv_ = d3.select('#'+div.id);          
 
 
-            // handling data
+            //handling options
+            this.variables_ = options.variables; 
+
+            var all_variables = d3.map(data,function(x){return x._vname_}).keys();
+
+            var not_found_var = this.variables_.filter( function (d) { return all_variables.indexOf(d) === -1 });
+
+            if(not_found_var.length > 0){
+                var msg = 'There are no CP profiles calculated for given selected variables: ' + not_found_var.toString();
+                throw new Error(msg);
+            }
+               
+           // handling data
+
+            if(data.length == 0 || data === null || data === undefined){
+                    var msg = 'There are no CP profiles in dataset.';
+                    throw new Error(msg);
+            };
+
+
+            // handling nulls 
+            var to_remove_data = {},
+                to_remove_dataObs = {},
+                data_length = data.length,
+                dataObs_length = dataObs.length,
+                has_empty_values = false;
+
+            data.forEach(function (el) {
+
+                for(var key in el){
+                    if(el[key] === null && el.hasOwnProperty(key)){
+                        to_remove_data[el['_ids_'] + "||" +  el['_label_'] + "||" +  el['_vname_']] = 1
+                        to_remove_dataObs[el['_ids_'] + "||" +  el['_label_']] = 1;
+                        has_empty_values = true;
+                    }
+                }
+
+            });
+
+            if(has_empty_values){
+                data = data.filter( function (el) { return !to_remove_data.hasOwnProperty(el['_ids_'] + "||" + el['_label_'] + "||" + el['_vname_']); });
+                console.log('Removed ' + (data_length - data.length) + ' rows with nulls from profiles data.');
+                dataObs = dataObs.filter( function (el) { return !to_remove_dataObs.hasOwnProperty(el['_ids_'] + "||" + el['_label_']); });
+                console.log('Removed ' + (dataObs_length - dataObs.length) + ' rows with nulls from observation data.');
+
+                if(data.length == 0){
+                    var msg = 'There are no CP profiles in dataset due to null values removing.';
+                    throw new Error(msg);
+                }
+            }
+
+            // changing boolean column to numeric column - profiles data
+            var boolean_variables =[];
+            for(var key in data[0]){
+                if(typeof data[0][key] == 'boolean'){ 
+                    boolean_variables.push(key)
+                }
+            }
+            
+            data = data.map(function(x){
+                        for(var i=0; i < boolean_variables.length;i++){
+                            key = boolean_variables[i];
+                            x[key] =  x[key] ? 1: 0;
+                        }
+                        return x;
+            })
+
+            // changing boolean column to numeric column - observation data
+            boolean_variables = [];
+            for(var key in dataObs[0]){
+                if(typeof dataObs[0][key] == 'boolean'){ 
+                    boolean_variables.push(key)
+                }
+            }
+
+            dataObs = dataObs.map(function(x){
+                        for(var i=0; i < boolean_variables.length;i++){
+                            key = boolean_variables[i];
+                            x[key] =  x[key] ? 1: 0;
+                        }
+                        return x;
+            })
+
             this.data_ = data;
             this.dataObs_ = dataObs;
 
-            //handling options
-            this.variables_ = options.variables; 
+
             // case variables name has improper characters like 
             //  !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, :, ;, <, =, >, ?, @, [, \, ], ^, `, {, |, }, and ~.
             this.variablesDict_ = {};
@@ -116,9 +197,28 @@
 
             this.is_color_variable_ = false;
 
+
+            function isColor(strColor){
+                 if(strColor)
+                 var s=new Option().style;
+                  s.color = strColor;
+                 return s.color != "" // if given color doesn't exist it set color to "", 
+                 // changed from s.color == strColor; because of cases like rgba(255,0,0,1), opacity parameter were autom. changed
+            };
+
+
             if (options.hasOwnProperty('color') && options.color !== null ){
-                this.color_ = options.color;
-                 if (dataObs[0].hasOwnProperty(options.color)) { this.is_color_variable_  = true;}
+
+                if(isColor(options.color)){
+                    this.color_ = options.color;
+                }else if(dataObs[0].hasOwnProperty(options.color)){ // it includes case _label_
+                    this.is_color_variable_  = true;
+                    this.color_ = options.color;
+                } else {
+                    var msg = "'color' = " + options.color + " is not a variable from given dataset nor a correct color name.";
+                    throw new Error(msg);
+                }
+
             } else {
                 this.color_ = this.default_color;
             }
@@ -470,7 +570,8 @@
                 svgHeight = this.svgHeight_,
                 length_rugs = this.length_rugs_,
                 widthAvail = this.widthAvail_,
-                heightAvail = this.heightAvail_;
+                heightAvail = this.heightAvail_,
+                halfStepCategorical = 0;
 
 
             var cells = plotDivCP.selectAll('.cellRow').data(d3.range(1,rows+1)).enter().append('div')
@@ -550,44 +651,57 @@
                         }
                         else if (typeof dataVar.map(function(x) {return x[variables[i]]})[0] == 'string') {
 
-                            if(categorical_order){  
 
+
+                            if(categorical_order){  
 
                                 if(categorical_order.filter(function(x) { return (x.variable == variables[i])})[0]){
 
                                     var order = categorical_order.filter(function(x) { return (x.variable == variables[i])})[0]
 
                                     var domain = [];
+                                    domain.push(''); //artificial just to add extra space at the beginning
                                     for(var key in order) {
                                         if(order.hasOwnProperty(key) && key != 'variable' && order[key] != null) {
                                             domain.push(order[key]);
                                         }
                                     }
+                                    domain.push(' '); //artificial just to add extra space at the end
 
-                                    var scaleX = d3.scalePoint().rangeRound([0+length_rugs, widthAvail]);
+                                    var scaleX = d3.scalePoint().rangeRound([0+length_rugs, widthAvail]); //CAT-CHANGE
                                     scaleX.domain(domain);
                                     
                                 } else {
-                                    var scaleX = d3.scalePoint().rangeRound([0+length_rugs, widthAvail]);
+                                    var scaleX = d3.scalePoint().rangeRound([0+length_rugs, widthAvail]); //CAT-CHANGE
                                     var domain = d3.nest().key(function(d){return d[variables[i]]}).entries(dataVar).map(function(x) {return x.key});
+                                    domain.unshift(''); //artificial just to add extra space at the beginning
+                                    domain.push(' '); //artificial just to add extra space at the end
                                     scaleX.domain(domain);
                                 }
 
                             }
                             else{
 
-                                var scaleX = d3.scalePoint().rangeRound([0+length_rugs, widthAvail]);
+                                var scaleX = d3.scalePoint().rangeRound([0+length_rugs, widthAvail]); //CAT-CHANGE
                                 var domain = d3.nest().key(function(d){return d[variables[i]]}).entries(dataVar).map(function(x) {return x.key});
+                                domain.unshift('');
+                                domain.push(' ');
                                 scaleX.domain(domain);
+
                             }
+
+                            // needed to add ends to first and last step in curveStep later
+                            halfStepCategorical = scaleX.step()/2;
 
                             chartArea.append("g").attr("transform", "translate(0," + heightAvail + ")")
                             .attr("class", "axisX").style('font', font_size_axes + 'px sans-serif')
-                            .call(d3.axisBottom(scaleX).tickSizeOuter(0).tickSizeInner(-heightAvail).tickPadding(tickPaddingSize).ticks(5).tickFormat(d3.format("")))
+                            .call(d3.axisBottom(scaleX).tickSizeOuter(0).tickSizeInner(-heightAvail).tickPadding(tickPaddingSize).ticks(5)) //.tickFormat(d3.format("")))
                             .selectAll('text').attr('transform', 'rotate(-20)')
                             .style("text-anchor", "end");
                             //.attr("dy", "-.10em");
-                            //.attr("x", 9).attr('y',0)                       
+                            //.attr("x", 9).attr('y',0)     
+
+
 
                         }
                         else {
@@ -641,7 +755,7 @@
 
             this.cellsG_ = this.userDiv_.selectAll(".cellMainG") //unnecessary?
             this.scalesX_ = scalesX;
-
+            this.halfStepCategorical_ = halfStepCategorical;
         };
 
 
@@ -675,6 +789,7 @@
                     }
                 }
                 )
+
         };    
 
 
@@ -691,7 +806,8 @@
                 size_ices = this.size_ices_,
                 self = this,
                 is_color_variable = this.is_color_variable_,
-                formatPredTooltip = this.formatPredTooltip_;
+                formatPredTooltip = this.formatPredTooltip_,
+                halfStepCategorical = this.halfStepCategorical_;
 
             var per_id_model = d3.nest()
                                 .key(function(d){return d['_ids_']+ '|' + d['_label_']})
@@ -705,10 +821,17 @@
                                             return temp;})
                                 .entries(dataVar);
 
-            var line = d3.line()
+            if(typeof scaleX.domain()[0] == 'number'){ 
+                     var line = d3.line()
                          .x(function(d) { return scaleX(d[variable]); })
                          .y(function(d) { return scaleY(d["_yhat_"]); });
-                                
+            } else {
+               var line = d3.line()
+                         .x(function(d) { return scaleX(d[variable]); })
+                         .y(function(d) { return scaleY(d["_yhat_"]); })
+                         .curve(d3.curveStep);                                             
+            }
+ 
             var iceplotegroups = g.selectAll('g.iceplotgroup').data(per_id_model).enter().append('g').attr('class', 'iceplotgroup');
 
             var iceplotlines = iceplotegroups.append("path").attr('class', 'iceplotline')
@@ -723,7 +846,18 @@
             }) 
              .attr("stroke-linejoin", "round").attr("stroke-linecap", "round").attr("stroke-width", size_ices)
              .attr('opacity', alpha_ices)
-             .attr("d", function(x){return line(x.values)});
+             .attr("d", function(x){
+
+                var path;
+
+                if(typeof scaleX.domain()[0] == 'number'){ 
+                    path = line(x.values);
+                } else {
+                    //adding extra start and end of step curve
+                    var path = line(x.values.slice(0,1)).split('Z')[0]+'l-'+ halfStepCategorical+',0' + line(x.values) + 'l'+halfStepCategorical+',0';                                                         }
+
+                return path;
+            });
 
             var iceplotpoints = iceplotegroups.append('g').attr('class','iceplotpointgroup').selectAll('circle.iceplotpoint').data(function(d){ return d.values}).enter()
                                               .append("circle").attr('class', 'iceplotpoint') 
@@ -1090,7 +1224,8 @@
                 size_pdps = this.size_pdps_,
                 color_pdps = this.color_pdps_,
                 self = this,
-                formatPredTooltip = this.formatPredTooltip_;
+                formatPredTooltip = this.formatPredTooltip_,
+                halfStepCategorical = this.halfStepCategorical_;
 
             if(aggregate_profiles == 'mean'){
                 var nested_data = d3.nest()
@@ -1123,9 +1258,17 @@
                                         .entries(dataVar);   
             }        
 
-            var line = d3.line()
+
+            if(typeof scaleX.domain()[0] == 'number'){ 
+                var line = d3.line()
                          .x(function(d) { if(typeof scaleX.domain()[0] == 'number'){ return scaleX(parseFloat(d.key));} else{ return scaleX(d.key);}; })
-                         .y(function(d) { return scaleY(d.value); });          
+                         .y(function(d) { return scaleY(d.value); });   
+            } else {
+                var line = d3.line()
+                         .x(function(d) { if(typeof scaleX.domain()[0] == 'number'){ return scaleX(parseFloat(d.key));} else{ return scaleX(d.key);}; })
+                         .y(function(d) { return scaleY(d.value); })
+                         .curve(d3.curveStep);                                             
+            }
 
             var pdpgroups = g.selectAll('g.pdpgroup').data(nested_data).enter().append('g').attr('class', 'pdpgroup');
 
@@ -1136,12 +1279,18 @@
              .attr("stroke-linejoin", "round").attr("stroke-linecap", "round")
              .attr("stroke-width", size_pdps)
              .attr('opacity', alpha_pdps)
-             .attr("d", function(x){ return line(x.values)});   
+             .attr("d", function(x){
 
+                            var path;
 
+                            if(typeof scaleX.domain()[0] == 'number'){ 
+                                path = line(x.values);
+                            } else {
+                                //adding extra start and end of step curve
+                                var path = line(x.values.slice(0,1)).split('Z')[0]+'l-'+ halfStepCategorical+',0' + line(x.values) + 'l'+halfStepCategorical+',0';                                                         }
 
-
-
+                            return path;
+                        });
 
 
             var pdppoints = pdpgroups.append('g').attr('class','pdppointgroup').selectAll('circle.pdpplotpoint').data(function(d){ return d.values}).enter()
@@ -1217,19 +1366,19 @@
         CeterisParibusPlot.prototype.scaleColorPrepare_ = function(){
 
            var no_colors = this.no_colors_,
-               default_color = this.default_color ,
-               defaultPaletteCat = d3.schemePaired, 
+               default_color = this.default_color,
+               defaultPaletteCat =  d3.schemeCategory10, //d3.schemePaired, 
                defaultPaletteNum = d3.schemeOrRd,
                color = this.color_,
                dataObs = this.dataObs_;
 
+            // adding colors option for no_colors = 2 and no_colors = 1
+            defaultPaletteNum[1] =  [d3.schemeOrRd[3][1]];
+            defaultPaletteNum[2] = [d3.schemeOrRd[3][1],d3.schemeOrRd[3][2]];
 
-
-          
             this.scaleColor_ = {};
 
             if (typeof dataObs.map(function (x) { return x[color];  })[0] == 'string'){
-
 
                 var domainCat = d3.nest().key(function(d){return d[color]}).entries(dataObs).map(function(x) {return x.key});
 
@@ -1243,6 +1392,7 @@
             }
             else if (typeof dataObs.map(function (x) { return x[color];  })[0]== 'number') {
 
+  
                 var nocolorsAvailable = d3.extent(defaultPaletteNum.map(function(x){ return x.length; }));
                 
                 if(no_colors > nocolorsAvailable[1] ||  no_colors < nocolorsAvailable[0]){
@@ -1252,10 +1402,10 @@
                         var scale = d3.scaleOrdinal(defaultPaletteNum[no_colors]),
                         scaleMin = d3.min(dataObs.map(function(x) {return x[color]})), 
                         scaleMax = d3.max(dataObs.map(function(x) {return x[color]})),
-
                         scaleDivisions,
                         format,
                         scaleDomain = [];
+
 
 
 
@@ -1263,9 +1413,6 @@
                         // so if we want floor of scaleMin we give it as a first argument, and as a second we can't put anything bigger, cause it changes scaling)
                         scaleMin = d3.scaleLinear().domain([scaleMin, scaleMax]).nice().domain()[0]
                         scaleMax = d3.scaleLinear().domain([scaleMin, scaleMax]).nice().domain()[1]
-
-
-              
 
                         // to have also nice rounded difference we use nice also here
                         var diff = d3.scaleLinear().domain([0, (scaleMax - scaleMin)/no_colors]).nice().domain()[1]
@@ -1288,7 +1435,7 @@
                         scaleDivisions = scaleDivisions.map(function(x) {return +d3.format(format)(x)});
                 
             
-                       
+                      
 
 
                         if(scaleDivisions.length > 1){
@@ -1307,10 +1454,11 @@
 
 
                         } else {
-                            scaleDomain = scaleDivisions[0].toString()
+
+                            scaleDomain = [scaleDivisions[0].toString()];
+
                         }
 
-                
                         scale.domain(scaleDomain);
 
 
@@ -1348,6 +1496,7 @@
                 
                          };
 
+
                         scaleNew.domain = scale.domain;
                         scaleNew.range = scale.range;
                         scaleNew.unknown = scale.unknown;
@@ -1363,7 +1512,7 @@
             else {
                 this.scaleColor_ = d3.scaleOrdinal();
                 this.scaleColor_.range([default_color]);
-                this.scaleColor_.domain('default');
+                this.scaleColor_.domain(['default']);
             } 
         };
 
@@ -1620,6 +1769,7 @@
                         .call(d3.axisBottom(this.scalesX_[this.variables_[i]]).tickSizeOuter(0).tickSizeInner(-this.heightAvail_).tickPadding(this.default_tickPadding).ticks(5))
                         .selectAll('text').attr('transform', 'rotate(-20)')
                         .style("text-anchor", "end");
+                    this.halfStepCategorical_ = this.scalesX_[this.variables_[i]].step()/2;
                 }
 
             }
@@ -1758,16 +1908,39 @@
 
             var scaleY = this.scaleY_,
                 scaleX = this.scalesX_[variable],
-                dataObs = this.dataObs_;
+                dataObs = this.dataObs_,
+                halfStepCategorical = this.halfStepCategorical_;
 
-            var line = d3.line()
+            if(typeof scaleX.domain()[0] == 'number'){ 
+                var line = d3.line()
                          .x(function(d) { return scaleX(d[variable]); })
                          .y(function(d) { return scaleY(d["_yhat_"]); });
+            } else {
+                var line = d3.line()
+                         .x(function(d) { return scaleX(d[variable]); })
+                         .y(function(d) { return scaleY(d["_yhat_"]); })
+                         .curve(d3.curveStep);                                             
+            }
+ 
 
-            mainG.selectAll('.iceplotline').attr("d", function(x){return line(x.values)});
+            mainG.selectAll('.iceplotline').attr("d", function(x){
+
+                var path;
+
+                if(typeof scaleX.domain()[0] == 'number'){ 
+                    path = line(x.values);
+                } else {
+                    //adding extra start and end of step curve
+                    var path = line(x.values.slice(0,1)).split('Z')[0]+'l-'+ halfStepCategorical+',0' + line(x.values) + 'l'+halfStepCategorical+',0';                                                         }
+
+                return path;
+            });
+
             mainG.selectAll('.iceplotpoint')
              .attr('cx', function(d) { return scaleX(d[variable]); })
              .attr('cy', function(d) { return scaleY(d['_yhat_']);});
+
+
 
         };
 
@@ -1838,14 +2011,33 @@
         CeterisParibusPlot.prototype.updatePdpPlot_ = function(mainG, variable){
 
             var scaleY = this.scaleY_,
-                scaleX = this.scalesX_[variable];
+                scaleX = this.scalesX_[variable],
+                halfStepCategorical = this.halfStepCategorical_;
 
-            var line = d3.line()
+            if(typeof scaleX.domain()[0] == 'number'){ 
+                var line = d3.line()
                          .x(function(d) { if(typeof scaleX.domain()[0] == 'number'){ return scaleX(parseFloat(d.key));} else{ return scaleX(d.key);}; })
-                         .y(function(d) { return scaleY(d.value); });          
+                         .y(function(d) { return scaleY(d.value); });   
+            } else {
+                var line = d3.line()
+                         .x(function(d) { if(typeof scaleX.domain()[0] == 'number'){ return scaleX(parseFloat(d.key));} else{ return scaleX(d.key);}; })
+                         .y(function(d) { return scaleY(d.value); })
+                         .curve(d3.curveStep);                                             
+            }
 
             mainG.selectAll('path.pdpline')
-             .attr("d", function(x){ return line(x.values)});   
+             .attr("d", function(x){
+
+                            var path;
+
+                            if(typeof scaleX.domain()[0] == 'number'){ 
+                                path = line(x.values);
+                            } else {
+                                //adding extra start and end of step curve
+                                var path = line(x.values.slice(0,1)).split('Z')[0]+'l-'+ halfStepCategorical+',0' + line(x.values) + 'l'+halfStepCategorical+',0';                                                         }
+
+                            return path;
+                        });
 
             mainG.selectAll('circle.pdpplotpoint')
              .attr('cx', function(d) { return scaleX(d.key); })
@@ -2212,7 +2404,7 @@
 
 
                 // calculate legend elements
-                this.legend_part_size_ = Math.floor(this.chartHeight_ / 13); // 13 = 1 for legend title and 12 because of max color available
+                this.legend_part_size_ = Math.floor(this.chartHeight_ / 11); // 11 = 1 for legend title and 10 because of max color available
 
                 this.legend_keys_size_  = d3.min([this.default_max_legend_key_size,Math.round(this.legend_part_size_ * 0.5)]); //(0.5 of legendPartSize will do as gapsize)
 
@@ -2274,7 +2466,7 @@
                 this.length_rugs_= this.size_rugs_ * d3.min([this.heightAvail_, this.widthAvail_]) * 0.1; // 0.1 - maximum length of rugs is 10% of Y/X axis height/width
 
                 // calculate legend elements
-                this.legend_part_size_ = Math.floor(this.chartHeight_ / 13); // 13 = 1 for legend title and 12 because of max color available
+                this.legend_part_size_ = Math.floor(this.chartHeight_ / 11); // 11 = 1 for legend title and 10 because of max color available
 
                 this.legend_keys_size_  = Math.round(this.legend_part_size_ * 0.5); //(0.5 of legendPartSize will do as gapsize)
 
