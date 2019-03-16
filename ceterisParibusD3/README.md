@@ -2,6 +2,12 @@
 
 ...
 
+## How to use
+
+Include library in html page...
+
+
+
 ## Documentation
 
 Package has one main function `createPlot` that is evoked on global package object `ceterisParibusD3`:
@@ -18,11 +24,65 @@ Parameter | Type | Required| Description
 `dataObs` |  array of objects | yes | data with observations used to generate *Ceteris Paribus Profiles* , see details in section *Data paremeters* below
 `options` |  object | yes | options of the chart, see details in section *Options* below
 
-##### Data parameters
+#### Data parameters
 
-...
+`data` contains information about every point of *Ceteris Paribus Profiles* generated for observations from `dataObs`. Examples of these objects are included in [examples](https://github.com/MI2DataLab/ceterisParibusExt/tree/master/ceterisParibusD3/examples), files such as *example1.js* include examples of `data` and files such as *example_obs1.js* corresponding `dataObs` arrays. There you can also find [R script](https://github.com/MI2DataLab/ceterisParibusExt/blob/master/ceterisParibusD3/examples/Ceteris%20Paribus%20Plots%20page%20-%20examples.R) to generate such files using `ceterisParibus` R package.
 
-##### Options
+We describe general form of array `dataObs` on the *example_obs1.js* shown below. Each object in `dataObs` corresponds to one observation with prediction from one, here we have just one observation and one model so we have just one object. Characteristic keys are: `_yhat_` (keeps model prediction for given observation),  `_y_` (real target value for given prediction), `_label_` (label of model used for prediction), `_ids_` (id of observation). Combination of `_label_` and `_ids_` make given observation unique in array `data`. Rest of keys (i.e. `m2.price`, `construction.year`, `surface`, `floor`, `no.rooms`, `district`) are variable from given dataset - each variable has its own key-value entry.
+
+```javascript
+[
+  {
+    "m2.price": 4397,
+    "construction.year": 2005,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_yhat_": 4094.3828,
+    "_y_": 4397,
+    "_label_": "randomForest",
+    "_ids_": "1958"
+  }
+]
+```
+
+General form of array `data` is described on the example of corresponding *example1.js* file, which extract is shown below. Each object in it corresponds to one point of *Ceteris Paribus Proflie* calculated for observation `_ids_`, model `_label_` and variable `_vname_`. It includes analogical keys corresponding to dataset variables as array `dataObs` (here: `m2.price`, `construction.year`, `surface`, `floor`, `no.rooms`, `district`), and model prediction for these point in `_yhat_`. Below we can see two points of the profile calculated for observation *1958* for model *randomForest* for variable *construction.year*: one point with construction.year = 1920 and one with construction.year =1921 (while as you can see above in `dataObs` the real value of construction.year for this observation is 2005).
+
+```javascript
+[
+  {
+    "m2.price": 4397,
+    "construction.year": 1920,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_yhat_": 4264.6774,
+    "_vname_": "construction.year",
+    "_ids_": "1958",
+    "_label_": "randomForest",
+    "_row": "1958"
+  },
+  {
+    "m2.price": 4397,
+    "construction.year": 1921,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_yhat_": 4291.5103,
+    "_vname_": "construction.year",
+    "_ids_": "1958",
+    "_label_": "randomForest",
+    "_row": "1958.1"
+  },
+  ...
+ ]
+```
+
+
+#### Options
 
 Options that can be set by `options` parameter:
 
@@ -66,7 +126,7 @@ Option | Type | Default | Required| Description
 
 
 
-##### Usage
+#### Usage
 
 Example of code usage on exemplary data [`example12`](https://github.com/MI2DataLab/ceterisParibusExt/blob/master/ceterisParibusD3/examples/example12.js) and [`example_obs12`](https://github.com/MI2DataLab/ceterisParibusExt/blob/master/ceterisParibusD3/examples/example_obs12.js):
 
@@ -105,6 +165,11 @@ var plot = new ceterisParibusD3.createPlot(div = "chartDiv",
                                 }
                        );
 ```
+and its output: 
+
+<center><img width="600" src="img/example_usage.jpg"></center>
+
+
 
 ## Issues and suggestions
 
