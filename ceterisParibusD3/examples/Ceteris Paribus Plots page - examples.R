@@ -474,37 +474,6 @@ dfl <- c(list(cp_rf_A))
 createJSONsWithData(numer = numer, dfl = dfl)
 
 
-############## example 23 (mine) categorical
-
-apartments$floor <- as.factor(apartments$floor)
-apartments$no.rooms <- as.factor(apartments$no.rooms)
-
-apartmentsTest$floor <- as.factor(apartmentsTest$floor)
-apartmentsTest$no.rooms <- as.factor(apartmentsTest$no.rooms)
-
-apartments_rf_model <- randomForest(m2.price ~ construction.year + surface + floor +
-                                      no.rooms + district, 
-                                    data = apartments)
-
-
-explainer_rf <- explain(apartments_rf_model,
-                        data = apartmentsTest[,2:6], 
-                        y = apartmentsTest$m2.price)
-
-apartments_A <- apartmentsTest[c(948),]
-
-
-cp_rf_A <- ceteris_paribus(explainer_rf, apartments_A, y = apartments_A$m2.price)
-
-
-plot(cp_rf_A, show_profiles = T, show_residuals = F, aggregate_profiles = 'mean', only_numerical = F, show_observations = F)
-
-cp_rf_A
-
-unique(apartments$district)
-
-
-
 
 
 
