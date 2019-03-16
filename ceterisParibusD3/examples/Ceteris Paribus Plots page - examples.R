@@ -10,7 +10,7 @@ library(dplyr)
 library(jsonlite)
 set.seed(59)
 
-path <- 'C:\\Users\\Ewa\\Desktop\\INTERACTIVE XAI FOR DALEX\\3. (October) - adding more layers\\pakiet JS dla ceterisParibus\\ceterisParibusExt\\ceterisParibusD3\\examples\\'
+path <- '...'
 
 createJSONsWithData <- function(numer, dfl){
   
