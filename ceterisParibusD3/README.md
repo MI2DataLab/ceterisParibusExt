@@ -9,9 +9,9 @@ Machine learning has been recently one of the hottest topics in business and sci
 `ceterisParibusD3` package is an interactive (D3 based) extension of plots from [ceterisParibus]( https://github.com/pbiecek/ceterisParibus) R package. It allows user to plot standard charts from the parent package for *Ceteris Paribus profiles* , i.e. each chart can include:
 
 - **ICE** curves for single observation / group of observation / whole dataset
-- **PDP** curves that aggregate chosen **ICE* curves
-- **observation points**  and **rugs** corresponding to chosen **ICE* curves 
-- **residuals** corresponding to chosen **ICE* curves 
+- **PDP** curves that aggregate chosen ICE curves
+- **observation points**  and **rugs** corresponding to chosen ICE curves
+- **residuals** corresponding to chosen ICE curves
 
 Each chart can be also divided into subplots (panels) per variable from dataset and be coloured by variable (to see interactions between variables) or model type (to compare model behaviours).
 
@@ -42,6 +42,8 @@ To see more examples check [this file](https://rawcdn.githack.com/MI2DataLab/cet
 You can load package directly from github along with its dependencies (see section *Dependencies*) - place this in the head of your HTML code:
 
 ```javascript
+
+// html header
 <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
@@ -49,7 +51,7 @@ You can load package directly from github along with its dependencies (see secti
  <script type="text/javascript" charset="utf8" src="https://rawgit.com/DataTables/Plugins/master/features/pageResize/dataTables.pageResize.js"></script>
 <script src="https://rawgit.com/MI2DataLab/ceterisParibusExt/master/ceterisParibusD3/ceterisParibusD3.js" charset="utf-8" lang="js"></script>
 
-
+// example of usage in js script
 <script>
 
 var plot = new ceterisParibusD3.createPlot(div, data, dataObs, options);
