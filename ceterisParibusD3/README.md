@@ -1,12 +1,55 @@
 # ceterisParibusD3
 
-...
+## Intro
 
-## How to use
+Machine learning has been recently one of the hottest topics in business and science. In different settings, starting from the intuitive financial ones, through medical usages and ending in high-tech ones as speech recognition, people try to predict outcomes using different statistical models. Previously used algorithms such as linear regression, however simple and interpretable, now often give way to new, more effective models that unfortunately due to their complexity lack interpretability. To maintain both accuracy and interpretability of the model we can use model explanation techniques (so-called eXplainable Artificial Intelligence, XAI) that aim to explain such black-box models through various approaches. One of the most fundamental questions that can be posed regarding model explanation is how model response depends on features from a dataset, which can be answered using *Ceteris Paribus Profiles* that can be plotted using this package.
 
-Include library in html page...
+## ceterisParibusD3 package
+[ceterisParibus]( https://github.com/pbiecek/ceterisParibus) package extension (interactive plots in D3), `ceterisParibusD3` plots add:
+
+- **tooltips** (shows info about given element (line, point) after hovering over it, hovering over an element causes also highlighting it on given panel (increasing its stroke, opacity or size) and highlighting elements related to the same data point in other panels)
+
+- **interactive table** (user can hover over each row, which causes highlighting elements related to this observation and hiding unrelated elements (apart from rugs and pdps), also filtering and sorting rows is available)
+
+<center><img width="600" src="img/interactivity.jpg"></center>
+
+## Examples
+
+ICE curves for single observation:
+
+<center><img width="600" src="img/individual_plot.jpg"></center>
+
+ICE curves for single observation - model comparison:
+
+<center><img width="600" src="img/mutlimodel_plot.jpg"></center>
+
+## More examples
+
+To see more examples check [this file](https://rawcdn.githack.com/MI2DataLab/ceterisParibusExt/05a06de0de24a3e4f9b6fd98be34fc2a68b0ee3e/ceterisParibusD3/example.html) and play with commented examples in [code](https://github.com/MI2DataLab/ceterisParibusExt/blob/master/ceterisParibusD3/example.html).
+
+## How to use / installation
+
+You can load package directly from github along with its dependencies (see section *Dependencies*) - place this in the head of your HTML code:
+
+```javascript
+<script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+ <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+ <script type="text/javascript" charset="utf8" src="https://rawgit.com/DataTables/Plugins/master/features/pageResize/dataTables.pageResize.js"></script>
+<script src="https://rawgit.com/MI2DataLab/ceterisParibusExt/master/ceterisParibusD3/ceterisParibusD3.js" charset="utf-8" lang="js"></script>
 
 
+<script>
+
+var plot = new ceterisParibusD3.createPlot(div, data, dataObs, options);
+
+</script>
+```
+
+### Dependencies
+
+`ceterisParibusD3.js` depends on [d3.js](https://d3js.org/), [jQuery.js](https://jquery.com/), [DataTables.js](https://datatables.net/) and its plugin [pageResize.js](https://github.com/DataTables/Plugins/tree/master/features/pageResize). In section *How to use /installation* you can find example how to include them on your page. 
 
 ## Documentation
 
