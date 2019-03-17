@@ -111,9 +111,9 @@ Option | Type | Default | Required| Description
 `alpha_residuals` |  number |  0.9 | no |  transparency of residuals points and lines, from 0 to 1
 `alpha_pdps` |  number |  0.4 | no |  transparency of PDP ines, from 0 to 1
 `alpha_ices` |  number |  0.4 | no |  transparency of ICE lines, from 0 to 1
-`color_rugs` |  string  |  '#3F547F'  |  no |   rugs color name/hex code 
-`color_points` | string    | '#3F547F'   |  no |   points color name/hex code 
-`color_residuals` | string   |  '#3F547F'  | no  |   residuals points and lines color name/hex code 
+`color_rugs` |  string  |  '#3F547F'  |  no |   rugs color name/hex code, if not given color is taken from `color` option
+`color_points` | string    | '#3F547F'   |  no |   points color name/hex code, if not given color is taken from `color` option
+`color_residuals` | string   |  '#3F547F'  | no  |   residuals points and lines color name/hex code, if not given color is taken from `color` option 
 `color_pdps` |  string  | 'grey'   | no  | PDP lines color name/hex code 
 `font_size_plot_title` |  number  | 16   | no  | font size of plot title, in px
 `font_size_titles` |  number  | 14  | no  | font size of subplots' title, in px
