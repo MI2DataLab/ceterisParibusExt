@@ -88,12 +88,12 @@ Options that can be set by `options` parameter:
 
 Option | Type | Default | Required| Description
 ------------ |  -------------| -------------| -------------| -------------
-`variables` |  array of strings|   | **yes** | names of variables to be plotted; should be compatible with variables from `data` and `dataObs`
-`show_profiles` | boolean |  |  **yes** | If true,  ICE lines are plotted
-`show_observations` | boolean |  |  **yes** | If true,  observation points are plotted
-`show_rugs` | boolean |  |  **yes** | If true,  rugs are plotted
-`show_residuals` | boolean |  |  **yes** | If true,  residuals  are plotted
-`aggregate_profiles` | string | null |  **yes** | If 'mean', PDPs are plotted (calculated as mean of ICE's), if 'median' PDPs are plotted (calculated as median of ICE's)
+`variables` |  array of strings|  all variables from dataset | no | names of variables to be plotted; should be compatible with variables from `data` and `dataObs`
+`show_profiles` | boolean | true |  no | If true,  ICE lines are plotted
+`show_observations` | boolean | true |  no | If true,  observation points are plotted
+`show_rugs` | boolean | true |  no | If true,  rugs are plotted
+`show_residuals` | boolean | true|  no| If true,  residuals  are plotted
+`aggregate_profiles` | string | null |  no | If 'mean', PDPs are plotted (calculated as mean of ICE's), if 'median' PDPs are plotted (calculated as median of ICE's)
 `width` | number | 600 | no | width of the plot, in px
 `height` | number | 400 | no | height of the plot, in px
 `auto_resize` | boolean | true| no | If true, plot will be resized when its container will be resized (it includes resize of subplots, legend and fonts)
