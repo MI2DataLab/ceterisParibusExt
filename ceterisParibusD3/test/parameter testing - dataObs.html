@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+<meta charset="utf-8">
+
+	<title>parameter testing - dataObs
+	</title>
+
+		<!-- loading JS libraries and style sheets, internet connection needed -->
+        <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+        <script type="text/javascript" charset="utf8" src="https://rawgit.com/DataTables/Plugins/master/features/pageResize/dataTables.pageResize.js"></script>
+ 
+    <!-- loading ceterisParibusD3 package-->
+        <script src="https://rawgit.com/MI2DataLab/ceterisParibusExt/master/ceterisParibusD3/ceterisParibusD3.js" charset="utf-8" lang="js"></script>
+
+
+
+</head>
+<body>
+
+<div style = 'color: red'>1) giving proper data as `dataObs` (should work)</div>
+<p id='par1'></div>
+<div id='chartDiv'> </div>  <!--  style = "width: 100vw; height: 100vh;"  -->
+
+<div style = 'color: red'>2) giving array of length 0 as `dataObs` (should not work)</div>
+<p id='par2'></div>
+<div id='chartDiv2'> </div> 
+
+<div style = 'color: red'>3) giving not array as `dataObs` (should not work)</div>
+<p id='par3'></div>
+<div id='chartDiv3'> </div> 
+
+<div style = 'color: red'>4) giving array of not objects as `dataObs` (should not work)</div>
+<p id='par4'></div>
+<div id='chartDiv4'> </div> 
+
+<div style = 'color: red'>5) giving  array of objects without all required keys ('_yhat_' missing) as `dataObs` (should not work)</div>
+<p id='par5'></div>
+<div id='chartDiv5'> </div> 
+
+<div style = 'color: red'>6) giving  proper array with object but with boolean value as `dataObs` (should work, boolean variables converted to numeric)</div>
+<p id='par6'></div>
+<div id='chartDiv6'> </div> 
+
+
+
+
+<script type="text/javascript">
+
+//1) giving proper data as `dataObs`
+
+var example1 = [
+{
+    "m2.price": 4397,
+    "construction.year": 1920,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_yhat_": 4264.6774,
+    "_vname_": "construction.year",
+    "_ids_": "1958",
+    "_label_": "randomForest"
+  },
+  {
+    "m2.price": 4397,
+    "construction.year": 1921,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_yhat_": 4291.5103,
+    "_vname_": "construction.year",
+    "_ids_": "1958",
+    "_label_": "randomForest"
+  }
+]
+
+var example_obs1 = [
+
+  {
+    "m2.price": 4397,
+    "construction.year": 2005,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_yhat_": 4094.3828,
+    "_y_": 4397,
+    "_label_": "randomForest",
+    "_ids_": "1958"
+  }
+  
+]
+
+
+var plot1 = new ceterisParibusD3.createPlot(div = "chartDiv", 
+                       data = example1,
+                       dataObs = example_obs1, 
+                       options = {
+                                   variables: ['construction.year'],
+                                   show_profiles: true, 
+                                   show_observations: true, 
+                                   show_rugs: true, 
+                                   show_residuals: true
+                                }
+                       );
+
+d3.select('#par1').html(plot1.last_error_message_)
+
+
+
+//2) giving array of length 0 as `dataObs`
+
+var example_obs1 = [];
+
+
+var plot2 = new ceterisParibusD3.createPlot(div = "chartDiv2", 
+                       data = example1,
+                       dataObs = example_obs1, 
+                       options = {
+                                   variables: ['construction.year'],
+                                   show_profiles: true, 
+                                   show_observations: true, 
+                                   show_rugs: true, 
+                                   show_residuals: true
+                                }
+                       );
+
+d3.select('#par2').html(plot2.last_error_message_)
+
+//3) giving not array as `dataObs`
+
+var example_obs1 = {};
+
+
+var plot3 = new ceterisParibusD3.createPlot(div = "chartDiv3", 
+                       data = example1,
+                       dataObs = example_obs1, 
+                       options = {
+                                   variables: ['construction.year'],
+                                   show_profiles: true, 
+                                   show_observations: true, 
+                                   show_rugs: true, 
+                                   show_residuals: true
+                                }
+                       );
+
+d3.select('#par3').html(plot3.last_error_message_)
+
+//4) giving  array of not objects as `dataObs`
+
+var example_obs1 = ['a'];
+
+var plot4 = new ceterisParibusD3.createPlot(div = "chartDiv4", 
+                       data = example1,
+                       dataObs = example_obs1, 
+                       options = {
+                                   variables: ['construction.year'],
+                                   show_profiles: true, 
+                                   show_observations: true, 
+                                   show_rugs: true, 
+                                   show_residuals: true
+                                }
+                       );
+
+d3.select('#par4').html(plot4.last_error_message_)
+
+
+//5) giving  array of objects without all required keys ('_yhat_' missing) as `dataObs`
+
+var example_obs1 = [
+
+  {
+    "m2.price": 4397,
+    "construction.year": 2005,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_y_": 4397,
+    "_label_": "randomForest",
+    "_ids_": "1958"
+  }
+  
+]
+
+var plot5 = new ceterisParibusD3.createPlot(div = "chartDiv5", 
+                       data = example1,
+                       dataObs = example_obs1, 
+                       options = {
+                                   variables: ['construction.year'],
+                                   show_profiles: true, 
+                                   show_observations: true, 
+                                   show_rugs: true, 
+                                   show_residuals: true
+                                }
+                       );
+
+d3.select('#par5').html(plot5.last_error_message_)
+
+
+//6) giving  proper array with object but with boolean value as `dataObs`
+
+var example_obs1 = [
+
+  {
+    "m2.price": 4397,
+    "construction.year": true,
+    "surface": 20,
+    "floor": 3,
+    "no.rooms": 2,
+    "district": "Wola",
+    "_y_": 4397,
+    "_yhat_": 4094.3828,
+    "_label_": "randomForest",
+    "_ids_": "1958"
+  }
+  
+]
+
+var plot6 = new ceterisParibusD3.createPlot(div = "chartDiv6", 
+                       data = example1,
+                       dataObs = example_obs1, 
+                       options = {
+                                   variables: ['construction.year'],
+                                   show_profiles: true, 
+                                   show_observations: true, 
+                                   show_rugs: true, 
+                                   show_residuals: true
+                                }
+                       );
+
+d3.select('#par6').html(plot6.last_error_message_)
+
+
+
+
+</script>
+</body>
+</html>

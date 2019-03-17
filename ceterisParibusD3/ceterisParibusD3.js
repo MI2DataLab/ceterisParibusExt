@@ -59,6 +59,8 @@
             this.default_plot_title = 'Ceteris Paribus plots per variable - predictions vs. variable values';
             this.default_yaxis_title = 'y';
 
+            function isObject(obj) { return obj === Object(obj);}
+
             /*
             this.default_legend_keys_size = 7;
 
@@ -68,6 +70,7 @@
                 this.legend_keys_size_ = this.default_legend_keys_size;
             }
             */
+            this.last_error_message_ ='';
 
 
             // handling user div
@@ -75,39 +78,91 @@
                 div = document.getElementById(div);
             }
 
-
             try{
                 if(!div){  
                     throw new Error('Container div for CeterisParibusPlot does not exist! Stopping execution.');
                 }
             } catch(e){
                 console.log(e.message)
+                this.last_error_message_ = e.message;
                 //alert(e.message)
                 return;
             }
 
+
             // take d3.selection, not pure html selection
-            this.userDiv_ = d3.select('#'+div.id);          
+            this.userDiv_ = d3.select('#'+div.id);      
 
-
-            //handling options
-            this.variables_ = options.variables; 
-
-            var all_variables = d3.map(data,function(x){return x._vname_}).keys();
-
-            var not_found_var = this.variables_.filter( function (d) { return all_variables.indexOf(d) === -1 });
-
-            if(not_found_var.length > 0){
-                var msg = 'There are no CP profiles calculated for given selected variables: ' + not_found_var.toString();
-                throw new Error(msg);
+            
+             try{
+                if(this.userDiv_.node().tagName != 'DIV'){  
+                    throw new Error('Given container is not a div! Stopping execution.');
+                }
+            } catch(e){
+                console.log(e.message)
+                this.last_error_message_ = e.message;
+                //alert(e.message)
+                return;
             }
-               
+
+  
            // handling data
 
-            if(data.length == 0 || data === null || data === undefined){
-                    var msg = 'There are no CP profiles in dataset.';
-                    throw new Error(msg);
-            };
+           // data
+
+            try{
+
+                if(data === null || data === undefined || data.length == 0 ){
+                        var msg = 'There are no CP profiles in dataset! Stopping execution.';
+                        throw new Error(msg);
+                } else if (!jQuery.isArray(data)){
+                        var msg = '`data` is not an array! Stopping execution';
+                        throw new Error(msg);                   
+                } else if (!isObject(data[0])){
+                        var msg = '`data` is not an array of objects! Stopping execution';
+                        throw new Error(msg);     
+                } else{
+                    var hasAllRequiredKeys = data[0].hasOwnProperty('_ids_') && data[0].hasOwnProperty('_label_') && data[0].hasOwnProperty('_vname_') && data[0].hasOwnProperty('_yhat_');
+                    if(!hasAllRequiredKeys){
+                        var msg = '`data` does not have all required keys (_ids_, _label_, _vname_, _yhat_)! Stopping execution';
+                        throw new Error(msg);     
+                      }
+                }
+
+            } catch(e){
+                console.log(e.message)
+                this.last_error_message_ = e.message;
+                return;
+            }
+
+            // dataObs
+
+            try{
+
+                if(dataObs === null || dataObs === undefined || dataObs.length == 0 ){
+                        var msg = 'There are no observations in dataset dataObs! Stopping execution.';
+                        throw new Error(msg);
+                } else if (!jQuery.isArray(dataObs)){
+                        var msg = '`dataObs` is not an array! Stopping execution';
+                        throw new Error(msg);                   
+                } else if (!isObject(dataObs[0])){
+                        var msg = '`dataObs` is not an array of objects! Stopping execution';
+                        throw new Error(msg);     
+                } else{
+                    var hasAllRequiredKeys = dataObs[0].hasOwnProperty('_ids_') && dataObs[0].hasOwnProperty('_label_') && dataObs[0].hasOwnProperty('_y_') && dataObs[0].hasOwnProperty('_yhat_');
+                    if(!hasAllRequiredKeys){
+                        var msg = '`dataObs` does not have all required keys (_ids_, _label_, _y_, _yhat_)! Stopping execution';
+                        throw new Error(msg);     
+                      }
+                }
+
+            } catch(e){
+                console.log(e.message)
+                this.last_error_message_ = e.message;
+                return;
+            }
+
+
 
 
             // handling nulls 
@@ -129,19 +184,32 @@
 
             });
 
-            if(has_empty_values){
-                data = data.filter( function (el) { return !to_remove_data.hasOwnProperty(el['_ids_'] + "||" + el['_label_'] + "||" + el['_vname_']); });
-                console.log('Removed ' + (data_length - data.length) + ' rows with nulls from profiles data.');
-                dataObs = dataObs.filter( function (el) { return !to_remove_dataObs.hasOwnProperty(el['_ids_'] + "||" + el['_label_']); });
-                console.log('Removed ' + (dataObs_length - dataObs.length) + ' rows with nulls from observation data.');
+            try {
 
-                if(data.length == 0){
-                    var msg = 'There are no CP profiles in dataset due to null values removing.';
-                    throw new Error(msg);
+                if(has_empty_values){
+                    data = data.filter( function (el) { return !to_remove_data.hasOwnProperty(el['_ids_'] + "||" + el['_label_'] + "||" + el['_vname_']); });
+                    console.log('Removed ' + (data_length - data.length) + ' rows with nulls from profiles data.');
+                    dataObs = dataObs.filter( function (el) { return !to_remove_dataObs.hasOwnProperty(el['_ids_'] + "||" + el['_label_']); });
+                    console.log('Removed ' + (dataObs_length - dataObs.length) + ' rows with nulls from observation data.');
+
+                    if(data.length == 0){
+                        var msg = 'There are no CP profiles in dataset due to null values removing.';
+                        throw new Error(msg);
+                    }
                 }
+
+            } catch(e){
+                console.log(e.message)
+                this.last_error_message_ = e.message;
+                return;
             }
 
+
+
+
             // changing boolean column to numeric column - profiles data
+            var last_error_message;
+
             var boolean_variables =[];
             for(var key in data[0]){
                 if(typeof data[0][key] == 'boolean'){ 
@@ -153,6 +221,7 @@
                         for(var i=0; i < boolean_variables.length;i++){
                             key = boolean_variables[i];
                             x[key] =  x[key] ? 1: 0;
+                            last_error_message = 'Changed ' + key + ' to numeric'
                         }
                         return x;
             })
@@ -169,12 +238,65 @@
                         for(var i=0; i < boolean_variables.length;i++){
                             key = boolean_variables[i];
                             x[key] =  x[key] ? 1: 0;
+                            last_error_message = 'Changed ' + key + ' to numeric'
                         }
                         return x;
             })
 
+            this.last_error_message_ = last_error_message;
+
             this.data_ = data;
             this.dataObs_ = dataObs;
+
+
+            //handling options
+
+            try{
+
+                if( !isObject(options) ){
+                        var msg = '`options` is not an object! Stopping execution.';
+                        throw new Error(msg);
+                } 
+
+            } catch(e){
+                    console.log(e.message)
+                    this.last_error_message_ = e.message;
+                    return;
+            }               
+
+
+            var all_variables = d3.map(data,function(x){return x._vname_}).keys();
+
+            if (options.hasOwnProperty('variables') && options.variables != null){
+
+                try{
+
+                        if( options.variables === undefined || options.variables.length == 0 ){
+                                var msg = 'There are no variables given in `variables`! Stopping execution.';
+                                throw new Error(msg);
+                        } else if (!jQuery.isArray(options.variables)){
+                                var msg = '`variables` is not an array! Stopping execution';
+                                throw new Error(msg);  
+                        } else {
+
+                                var not_found_var = options.variables.filter( function (d) { return all_variables.indexOf(d) === -1 });
+
+                                if(not_found_var.length > 0){
+                                    var msg = 'There are no CP profiles calculated for selected variables: ' + not_found_var.toString();
+                                    throw new Error(msg);
+                                }
+                        }   
+
+                } catch(e){
+                    console.log(e.message)
+                    this.last_error_message_ = e.message;
+                    return;
+                }               
+
+                this.variables_ = options.variables; 
+            } else {
+                this.variables_ = all_variables;
+            }
 
 
             // case variables name has improper characters like 
@@ -215,8 +337,15 @@
                     this.is_color_variable_  = true;
                     this.color_ = options.color;
                 } else {
-                    var msg = "'color' = " + options.color + " is not a variable from given dataset nor a correct color name.";
-                    throw new Error(msg);
+                    try{
+                        var msg = "'color' = " + options.color + " is not a variable from given dataset nor a correct color name.";
+                        throw new Error(msg);     
+                    } catch(e){
+                    console.log(e.message)
+                    this.last_error_message_ = e.message;
+                    return;
+                    }          
+
                 }
 
             } else {
@@ -379,18 +508,58 @@
                 this.yaxis_title_ = this.default_yaxis_title;
             }
 
+            if (options.hasOwnProperty('show_profiles') && options.show_profiles !== null){
+                this.show_profiles_ = options.show_profiles;
+            } else {
+                this.show_profiles_ = true;
+            }
 
-            this.show_profiles_ = options.show_profiles;
-            this.show_observations_ = options.show_observations;
-            this.show_rugs_ = options.show_rugs;                
-            this.show_residuals_ = options.show_residuals;
-            this.aggregate_profiles_ = options.aggregate_profiles;
+            if (options.hasOwnProperty('show_observations') && options.show_observations !== null){
+                this.show_observations_ = options.show_observations;
+            } else {
+                this.show_observations_ = true;
+            }
+
+            if (options.hasOwnProperty('show_rugs') && options.show_rugs !== null){
+                this.show_rugs_ = options.show_rugs;
+            } else {
+                this.show_rugs_ = true;
+            }
+
+            if (options.hasOwnProperty('show_residuals') && options.show_residuals !== null){
+                this.show_residuals_ = options.show_residuals;
+            } else {
+                this.show_residuals_ = true;
+            }
+
+            if (options.hasOwnProperty('aggregate_profiles') && options.aggregate_profiles !== null){
+                
+                    try{
+                        if(options.aggregate_profiles == 'mean' || options.aggregate_profiles == 'median'){
+                            this.aggregate_profiles_ = options.aggregate_profiles;
+                        } else {
+                            var msg = options.aggregate_profiles + ' is not allowed aggregation function, available: "mean" and "median"! Stopping execution.';
+                            throw new Error(msg);  
+                        }
+         
+                    } catch(e){
+                        console.log(e.message)
+                        this.last_error_message_ = e.message;
+                        return;
+                    }          
+        
+            } else {
+                this.aggregate_profiles_ = null;
+            }
+
+
 
 
             try{
                 this.scaleColorPrepare_();
             } catch(e){
                 console.log(e.message)
+                this.last_error_message_ = e.message;
                 //alert(e.message)
                 return;
             }
