@@ -236,4 +236,4 @@ To report a bug or propose a new feature please review these guidelines:
 
 ## Acknowledgments
 
-...
+Work on this package is financially supported by the NCN Opus grant 2017/27/B/ST6/01307.
