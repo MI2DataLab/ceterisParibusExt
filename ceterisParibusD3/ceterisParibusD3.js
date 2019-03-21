@@ -765,7 +765,7 @@
 
             cells = this.userDiv_.selectAll('.cellBody');
 
-            var scaleY = d3.scaleLinear().rangeRound([this.heightAvail_ - this.length_rugs_ - 5, 0]);      // czemu - 5?
+            var scaleY = d3.scaleLinear().rangeRound([this.heightAvail_ - this.length_rugs_ - 5, 0]);    
 
             var minScaleY = d3.min([d3.min(data, function(d) { return d["_yhat_"]; }), d3.min(dataObs, function(d) { return d["_y_"]; })]),
                 maxScaleY = d3.max([d3.max(data, function(d) { return d["_yhat_"]; }), d3.max(dataObs, function(d) { return d["_y_"]; })]);
@@ -1484,7 +1484,7 @@
                                    "y_pred: " + d3.format(formatPredTooltip)(d.value) +  "<br/>" +
                                    variable + ": " + d.key +  "<br/>"
                            )
-                      .style("left", (d3.event.pageX +15 ) + "px") // ustalamy pozycje elementu tam gdzie zostanie akcja podjeta 
+                      .style("left", (d3.event.pageX +15 ) + "px") 
                       .style("top", (d3.event.pageY) + "px")
                       .transition()
                       .duration(300)
