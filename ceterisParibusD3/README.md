@@ -117,8 +117,7 @@ General form of array `data` is described on the example of corresponding *examp
     "_yhat_": 4264.6774,
     "_vname_": "construction.year",
     "_ids_": "1958",
-    "_label_": "randomForest",
-    "_row": "1958"
+    "_label_": "randomForest"
   },
   {
     "m2.price": 4397,
@@ -130,8 +129,7 @@ General form of array `data` is described on the example of corresponding *examp
     "_yhat_": 4291.5103,
     "_vname_": "construction.year",
     "_ids_": "1958",
-    "_label_": "randomForest",
-    "_row": "1958.1"
+    "_label_": "randomForest"
   },
   ...
  ]
