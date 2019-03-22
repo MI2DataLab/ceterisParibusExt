@@ -23,6 +23,7 @@ Each chart can be also divided into subplots (panels) per variable from dataset 
 
 <center><img width="600" src="img/interactivity.jpg"></center>
 
+There is available an implementation of this package in [R](https://github.com/flaminka/ceterisParibusD3) and in [Python](https://github.com/ModelOriented/pyCeterisParibus).
 ## Examples
 
 ICE curves for single observation:
